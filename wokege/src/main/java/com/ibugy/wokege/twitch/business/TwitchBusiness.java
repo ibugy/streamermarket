@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.ibugy.wokege.twitch.api.TwitchApiService;
 import com.ibugy.wokege.twitch.api.TwitchOauthService;
 import com.ibugy.wokege.twitch.model.TwitchOauthToken;
+import com.ibugy.wokege.twitch.model.TwitchStreamInfo;
 import com.ibugy.wokege.twitch.model.TwitchUserInfo;
 
 @Service
@@ -44,12 +45,21 @@ public class TwitchBusiness {
 	}
 
 	public TwitchUserInfo getUserInfo(String name) {
+		renewToken();
+		return twitchApiService.getUser(name, twitchApiToken.getAccessToken(), clientId);
+	}
+
+	public TwitchStreamInfo getStreamInfo(String name) {
+		renewToken();
+		return twitchApiService.getStream(name, twitchApiToken.getAccessToken(), clientId);
+	}
+
+	private void renewToken() {
 		// TODO include if token.isExpired
 		if (twitchApiToken == null) {
 			LOG.info("Requesting twitch api oauth token...");
 			twitchApiToken = twitchOauthService.getAccessToken(clientId, clientSecret);
 			LOG.info(twitchApiToken);
 		}
-		return twitchApiService.getUser(name, twitchApiToken.getAccessToken(), clientId);
 	}
 }

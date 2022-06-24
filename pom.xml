@@ -23,6 +23,7 @@
 		<postgresql.version>42.4.0</postgresql.version>
 		<lombok.version>1.18.24</lombok.version>
 		<spring.boot.version>2.7.0</spring.boot.version>
+		<spring.data.jpa.version>2.7.0</spring.data.jpa.version>
 		
 	</properties>
 
