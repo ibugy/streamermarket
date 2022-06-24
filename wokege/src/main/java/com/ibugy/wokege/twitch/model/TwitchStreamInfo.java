@@ -14,17 +14,10 @@ import lombok.Data;
 public class TwitchStreamInfo {
 
 	private String id;
-	private String userId;
 	private String userLogin;
-	private String userName;
-	private String gameId;
-	private String gameName;
 	private String type;
 	private String title;
 	private int viewerCount;
 	private Date startedAt;
 	private String language;
-	private String thumbnailUrl;
-	private String tagIds;
-	private boolean isMature;
 }
