@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "twitch.api.url.users",
+    "type": "java.lang.String",
+    "description": "A description for 'twitch.api.url.users'"
+  },
+  {
+    "name": "twitch.api.url.streams",
+    "type": "java.lang.String",
+    "description": "A description for 'twitch.api.url.streams'"
+  },
+  {
+    "name": "twitch.oauth.url",
+    "type": "java.lang.String",
+    "description": "A description for 'twitch.oauth.url'"
+  },
+  {
+    "name": "twitch.oauth.clientid.location",
+    "type": "java.lang.String",
+    "description": "A description for 'twitch.oauth.clientid.location'"
+  },
+  {
+    "name": "twitch.oauth.secret.location",
+    "type": "java.lang.String",
+    "description": "A description for 'twitch.oauth.secret.location'"
+  },
+  {
+    "name": "wokege.target.streamers.location",
+    "type": "java.lang.String",
+    "description": "A description for 'wokege.target.streamers.location'"
+  },
+  {
+    "name": "wokege.job.stream.data.processor",
+    "type": "java.lang.String",
+    "description": "A description for 'wokege.job.stream.data.processor'"
+  }
+]}

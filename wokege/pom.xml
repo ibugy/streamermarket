@@ -21,6 +21,17 @@
 			<version>${lombok.version}</version>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>com.ibugy</groupId>
+			<artifactId>streamermarket-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.4.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

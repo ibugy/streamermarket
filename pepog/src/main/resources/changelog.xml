@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+	<changeSet id="table_streamer" author="ibugy">
+		<createTable tableName="STREAMER">
+			<column name="name" type="varchar">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="coin_value" type="money" />
+			<column name="pfp_url" type="varchar"></column>
+			<column name="description" type="varchar"></column>
+		</createTable>
+	</changeSet>
+	<changeSet id="table_daily_stream_data" author="ibugy">
+		<createTable tableName="DAILY_STREAM_DATA">
+			<column name="date" type="date">
+				<constraints primaryKey="true"/>
+			</column>
+			<column name="streamer" type="varchar">
+				<constraints primaryKey="true" foreignKeyName="fk_daily_stream_data_streamer" references="streamer(name)"/>
+			</column>
+			<column name="avg_views" type="int"></column>
+		</createTable>
+	</changeSet>
+	<changeSet id="streamers" author="ibugy" runAlways="true">
+		<loadData tableName="streamer" file="streamers.csv"></loadData>
+	</changeSet>
+</databaseChangeLog>
