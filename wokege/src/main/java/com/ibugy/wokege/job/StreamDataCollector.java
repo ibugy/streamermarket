@@ -78,6 +78,7 @@ public class StreamDataCollector implements Runnable {
 	 * Stops the process. It can be restarted after, using {@link #run()}
 	 */
 	public void stop() {
+		LOG.info("**** STREAM DATA COLLECTOR STOPPED ****");
 		running = false;
 	}
 

@@ -48,6 +48,7 @@ public class StreamDataProcessor {
 						streamsCount++;
 					}
 					avgViews = viewsSum / streamsCount;
+					LOG.info("Streamer " + streamer + "had " + avgViews + "average views today");
 					streamsToSave.add(new DailyStreamData(new Date(), streamer, avgViews));
 				}
 			});
