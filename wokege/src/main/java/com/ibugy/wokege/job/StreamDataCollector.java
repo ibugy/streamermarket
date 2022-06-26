@@ -80,9 +80,11 @@ public class StreamDataCollector {
 						streamsCount++;
 					}
 					avgViews = viewsSum / streamsCount;
-					LOG.info("Streamer " + streamer + " had " + avgViews + "average views today");
+					LOG.info("Streamer " + streamer + " has been tracked " + streamsCount + " times");
+					LOG.info("Streamer " + streamer + " had " + avgViews + " average views this period");
 					streamsToSave.add(new DailyStreamData(new Date(), streamer, avgViews));
 				}
+				streams.clear();
 			});
 		// ! - Calculate average views last 7 days and adjust streamer coinValue
 		// TODO
