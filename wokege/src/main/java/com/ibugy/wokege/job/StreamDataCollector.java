@@ -1,20 +1,17 @@
 package com.ibugy.wokege.job;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.ibugy.streamermarket.common.repository.StreamerRepository;
 import com.ibugy.wokege.twitch.business.TwitchBusiness;
 import com.ibugy.wokege.twitch.model.TwitchStreamInfo;
 import com.ibugy.wokege.twitch.model.TwitchStreamsData;
@@ -30,33 +27,25 @@ public class StreamDataCollector implements Runnable {
 	private static final Log LOG = LogFactory.getLog(StreamDataCollector.class);
 	@Autowired
 	private TwitchBusiness twitchBusiness;
-	private File streamersFile;
+	@Autowired
+	private StreamerRepository streamerRepository;
 	private HashMap<String, ArrayList<TwitchStreamInfo>> twitchStreamsCollectedData;
 	private boolean running;
 	private static final long FREQUENCY = 10 * 1000; // 10 seconds
 	private static final long MIN_LIVE_TIME = 1000 * 60 * 10; // 10 minutes
-
-	public StreamDataCollector(@Value("${wokege.target.streamers.location}") String streamersFilePath) {
-		streamersFile = new File(streamersFilePath);
-	}
 
 	@Override
 	public void run() {
 		running = true;
 		LOG.info("**** STREAM DATA COLLECTOR STARTED ****");
 		twitchStreamsCollectedData = new HashMap<>();
-		try (Scanner scanner = new Scanner(streamersFile);) {
-			LOG.info("Collecting stream data from: ");
-			while (scanner.hasNextLine()) {
-				String streamer = scanner.nextLine();
-				twitchStreamsCollectedData.put(streamer, new ArrayList<>());
-				LOG.info(streamer);
-			}
-		} catch (FileNotFoundException e) {
-			LOG.error("Error reading target streamers file. Thread will exit.");
-			LOG.error(e.getMessage(), e);
-			return;
-		}
+		// !- Get streamers to search for
+		streamerRepository.findAll()
+			.stream()
+			.forEach(streamer -> {
+				twitchStreamsCollectedData.put(streamer.getName(), new ArrayList<>());
+			});
+		// !- Collect stream data from twitch indefinitely to be collected by the StreamDataProcessor
 		while (running) {
 			long timeBeforeTask = new Date().getTime();
 			long timeNextIteration = timeBeforeTask + FREQUENCY;
