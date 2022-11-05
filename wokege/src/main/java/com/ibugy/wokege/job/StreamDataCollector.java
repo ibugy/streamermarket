@@ -1,8 +1,10 @@
 package com.ibugy.wokege.job;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -14,11 +16,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.ibugy.streamermarket.common.model.DailyStreamData;
+import com.ibugy.streamermarket.common.model.Streamer;
 import com.ibugy.streamermarket.common.repository.DailyStreamDataRepository;
 import com.ibugy.streamermarket.common.repository.StreamerRepository;
 import com.ibugy.wokege.twitch.business.TwitchBusiness;
 import com.ibugy.wokege.twitch.model.TwitchStreamInfo;
 import com.ibugy.wokege.twitch.model.TwitchStreamsData;
+import com.ibugy.wokege.twitch.model.TwitchUsersData;
 
 @Component
 public class StreamDataCollector {
@@ -43,10 +47,10 @@ public class StreamDataCollector {
 			});
 	}
 
-	@Scheduled(cron = "${wokege.job.stream.data.collector}")
-	private void collectData() {
+	@Scheduled(cron = "${wokege.job.streams.collector}")
+	private void collectStreamsData() {
 		LOG.info("**** STREAM DATA COLLECTOR STARTED ****");
-		TwitchStreamsData data = twitchBusiness.getStreamInfo(twitchStreamsCollectedData.keySet()
+		TwitchStreamsData data = twitchBusiness.getStreamsInfo(twitchStreamsCollectedData.keySet()
 			.toArray(String[]::new));
 		data.getData()
 			.stream()
@@ -63,15 +67,37 @@ public class StreamDataCollector {
 		LOG.info("**** STREAM DATA COLLECTOR FINISHED ****");
 	}
 
-	@Scheduled(cron = "${wokege.job.stream.data.processor}")
-	public void processData() {
+	@Scheduled(cron = "${wokege.job.streams.processor}")
+	public void processStreamsData() {
 		LOG.info("**** STREAM DATA PROCESSOR STARTED ****");
+		ArrayList<String> streamersToUpdate = saveTodayStreamData();
+		updateStreamerCoinValue(streamerRepository.findByNameIn(streamersToUpdate));
+		LOG.info("**** STREAM DATA PROCESSOR FINISHED ****");
+	}
+
+	@Scheduled(cron = "${wokege.job.streamers.collector}")
+	public void collectStreamerData() {
+		LOG.info("**** STREAMER DATA COLLECTOR STARTED ****");
+		TwitchUsersData data = twitchBusiness.getUsersInfo(twitchStreamsCollectedData.keySet()
+			.toArray(String[]::new));
+		ArrayList<Streamer> streamersToSave = new ArrayList<>();
+		data.getData()
+			.stream()
+			.forEach(userInfo -> {
+				streamersToSave.add(new Streamer(userInfo.getLogin(), null, userInfo.getProfileImageUrl(), userInfo.getDescription()));
+			});
+		streamerRepository.saveAll(streamersToSave);
+	}
+
+	private ArrayList<String> saveTodayStreamData() {
 		ArrayList<DailyStreamData> streamsToSave = new ArrayList<>();
+		ArrayList<String> streamersToUpdate = new ArrayList<>();
 		Set<String> streamers = twitchStreamsCollectedData.keySet();
 		streamers.stream()
 			.forEach(streamer -> {
 				ArrayList<TwitchStreamInfo> streams = twitchStreamsCollectedData.get(streamer);
 				if (streams.size() > 0) {
+					streamersToUpdate.add(streamer);
 					int viewsSum = 0;
 					int streamsCount = 0;
 					int avgViews;
@@ -86,9 +112,24 @@ public class StreamDataCollector {
 				}
 				streams.clear();
 			});
-		// ! - Calculate average views last 7 days and adjust streamer coinValue
-		// TODO
 		streamRepository.saveAll(streamsToSave);
-		LOG.info("**** STREAM DATA PROCESSOR FINISHED ****");
+		return streamersToUpdate;
+	}
+
+	private void updateStreamerCoinValue(List<Streamer> streamersToUpdate) {
+		// ! - Calculate average views last 7 days and adjust streamer coinValue
+		streamersToUpdate.forEach(streamer -> {
+			List<DailyStreamData> dailyStreamDataList = streamRepository.findTop7ByStreamerOrderByDateDesc(streamer.getName());
+			BigDecimal coinValue = BigDecimal.valueOf(0);
+			dailyStreamDataList.forEach(dsd -> {
+				coinValue.add(BigDecimal.valueOf(dsd.getAvgViews()));
+			});
+			coinValue.divide(BigDecimal.valueOf(dailyStreamDataList.size()));
+			LOG.info(
+				"Saving new coinValue for " + streamer.getName() + ". Was: " + streamer.getCoinValue() + ". Now it is " + coinValue + ".");
+			streamer.setCoinValue(coinValue);
+			streamerRepository.save(streamer);
+		});
+		LOG.info("Finished updating streamers coin values");
 	}
 }

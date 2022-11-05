@@ -25,7 +25,8 @@ public class TwitchApiService {
 	private URI usersUrl;
 	private URI streamsUrl;
 
-	public TwitchApiService(@Value("${twitch.api.url.users}") String usersUrlString, @Value("${twitch.api.url.streams}") String streamsUrlString) throws URISyntaxException {
+	public TwitchApiService(@Value("${twitch.api.url.users}") String usersUrlString,
+		@Value("${twitch.api.url.streams}") String streamsUrlString) throws URISyntaxException {
 		restTemplate = new RestTemplateBuilder().build();
 		usersUrl = new URI(usersUrlString);
 		streamsUrl = new URI(streamsUrlString);
@@ -36,9 +37,10 @@ public class TwitchApiService {
 		HttpEntity<String> httpEntity = new HttpEntity<>(headers);
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append(usersUrl.toString());
+		strBuilder.append("?login=" + users[0]);
 		Arrays.asList(users)
 			.stream()
-			.forEach(user -> strBuilder.append("?login=" + user));
+			.forEach(user -> strBuilder.append("&login=" + user));
 		String requestUrl = strBuilder.toString();
 		TwitchUsersData usersData = restTemplate.exchange(requestUrl, HttpMethod.GET, httpEntity, TwitchUsersData.class)
 			.getBody();

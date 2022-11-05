@@ -44,12 +44,12 @@ public class TwitchBusiness {
 		}
 	}
 
-	public TwitchUsersData getUserInfo(String... users) {
+	public TwitchUsersData getUsersInfo(String... users) {
 		renewToken();
 		return twitchApiService.getUsers(twitchApiToken.getAccessToken(), clientId, users);
 	}
 
-	public TwitchStreamsData getStreamInfo(String... streamers) {
+	public TwitchStreamsData getStreamsInfo(String... streamers) {
 		renewToken();
 		return twitchApiService.getStreams(twitchApiToken.getAccessToken(), clientId, streamers);
 	}
